@@ -1,0 +1,107 @@
+﻿@model PickupImage.Models.Post
+
+@{
+    ViewBag.Title = "create";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<h2>create</h2>
+
+
+@using (Html.BeginForm()) 
+{
+    @Html.AntiForgeryToken()
+    
+    <div class="form-horizontal">
+        <h4>Post</h4>
+        <hr />
+        @Html.ValidationSummary(true, "", new { @class = "text-danger" })
+        <div class="form-group">
+            @Html.LabelFor(model => model.title, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.title, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.title, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.Content, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+                @Html.EditorFor(model => model.Content, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.Content, "", new { @class = "text-danger" })
+            </div>
+        </div>
+
+        <div class="form-group">
+            @Html.LabelFor(model => model.ImagePath, htmlAttributes: new { @class = "control-label col-md-2" })
+            <div class="col-md-10">
+
+                <input type="file" name="file" class="form-control" id="pickupImage" />
+
+                <img src="" id="ImageViewing" width="500px" />
+
+                @Html.HiddenFor(model => model.ImagePath, new { @class = "ImagePath" })
+
+
+                @*@Html.EditorFor(model => model.ImagePath, new { htmlAttributes = new { @class = "form-control" } })
+                @Html.ValidationMessageFor(model => model.ImagePath, "", new { @class = "text-danger" })*@
+            </div>
+        </div>
+
+        <div class="form-group">
+            <div class="col-md-offset-2 col-md-10">
+                <input type="submit" value="Create" class="btn btn-default" />
+            </div>
+        </div>
+    </div>
+}
+
+<div>
+    @Html.ActionLink("Back to List", "Index")
+</div>
+
+@section Scripts {
+    @Scripts.Render("~/bundles/jqueryval")
+
+    <script type="text/javascript">
+
+        //View Image when webpage is loaded
+        var url = $('.ImagePath').val();
+        ViewImage(url);
+
+        //Now handle change Event of Input type file
+        $('#pickupImage').change(function () {
+            //call upload method
+            uploadImage(this.files[0]);
+
+        });
+
+        //First, create a method to upload image to server after picked from PC
+        function uploadImage(file) {
+            var formData = new FormData();
+            formData.append("file", file);
+            $.ajax({
+                data: formData,
+                type: "POST",
+                url: '/Post/SaveFile',
+                cache: false,
+                contentType: false,
+                processData:false,
+                success: function (returnImageURL) {
+                    //Asign return Image URL to HTML.Hiddenfor
+                    $('#ImagePath').val(returnImageURL);
+                    //Call this method to view Image
+                    ViewImage(returnImageURL);
+                }
+               
+            });
+        }
+
+        //View Image
+        function ViewImage(url) {
+            if (url) {
+                $('#ImageViewing').attr('src', url);
+            }
+        }
+    </script>
+}
